@@ -3,17 +3,12 @@
 
 
 ## 一、环境激活
-首先通过终端激活项目依赖的 Conda 环境，执行以下命令（路径固定，直接复制运行即可）：
-```bash
-conda activate /train21/medcog/permanent/hjzhang43/miniconda/envs/nnInteractive
-```
 
 
 ## 二、X11 安装与配置（图形化交互关键步骤）
 X11 用于支持 UI 界面的图形化显示，需在 **Windows 云桌面** 完成以下配置：
 1. **下载 X11 安装包**  
-   从调试机指定路径，将安装包复制到本地云桌面：  
-   源路径：`/train21/medcog/permanent/hjzhang43/Downloads/Xming-6-9-0-31-setup.exe`
+   `Xming-6-9-0-31-setup.exe`
 2. **安装 X11**  
    双击运行 `Xming-6-9-0-31-setup.exe`，按安装向导默认步骤完成（推荐保留默认安装路径：`C:\Program Files (x86)\Xming\`）。
 3. **配置调试机 IP 地址**  
@@ -26,11 +21,7 @@ X11 用于支持 UI 界面的图形化显示，需在 **Windows 云桌面** 完�
 
 ## 三、项目启动
 1. **进入项目目录**  
-   打开 Xshell 连接调试机后，切换到项目根目录（若默认 `cd` 命令进入用户主目录，需补充实际项目路径，示例如下）：
-   ```bash
-   # 若项目在指定路径，替换为实际路径（示例：cd /train21/medcog/project）
-   cd 
-   ```
+   打开 Xshell 连接调试机后，切换到项目根目录
 2. **启动 UI 界面**  
    执行命令启动交互界面，首次运行需等待依赖加载（约 5-15 秒，具体视环境而定）：
    ```bash
