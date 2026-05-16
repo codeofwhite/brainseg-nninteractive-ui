@@ -163,7 +163,7 @@ class tumornnInteractivewithMutilBoxPoint_Inference:
 
 
 def box_point_test_demo():
-    input_image_path = r"D:\liver_image.nii.gz"
+    input_image_path = r"your_image_path.nii.gz"  # 请替换为实际图像路径
     output_mask_path = "liver_tumor_nnInteractive_point.nii.gz"
     box_list_2d_liver_tumor = [141, 354, 383, 144, 360, 383, 4]  # x1,y1,z1,x2,y2,z2,label
     box_list_2d_kidney_tumor = [158, 354, 275, 161, 357, 275, 2]  # x1,y1,z1,x2,y2,z2,label

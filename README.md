@@ -1,79 +1,126 @@
-# 调试机运行与标注操作指南
-本文档详细说明调试机环境激活、X11 安装配置、项目启动及 UI 界面使用的完整流程，步骤清晰可落地，适用于医学图像标注场景的日常操作。
+# nnInteractive - 交互式医学图像分割工具
 
+基于 [nnInteractive](https://github.com/MIC-DKFZ/nnInteractive) 的交互式 3D 医学图像分割 GUI 工具，支持多种标注方式（点、框、涂鸦、套索），可用于医学图像的快速标注与分割。
 
-## 一、环境激活
+## 项目简介
 
+本项目在 nnInteractive 推理引擎基础上，提供了基于 Tkinter 的图形化交互界面，支持以下核心功能：
 
-## 二、X11 安装与配置（图形化交互关键步骤）
-X11 用于支持 UI 界面的图形化显示，需在 **Windows 云桌面** 完成以下配置：
-1. **下载 X11 安装包**  
-   `Xming-6-9-0-31-setup.exe`
-2. **安装 X11**  
-   双击运行 `Xming-6-9-0-31-setup.exe`，按安装向导默认步骤完成（推荐保留默认安装路径：`C:\Program Files (x86)\Xming\`）。
-3. **配置调试机 IP 地址**  
-   - 启动 Xming 配套工具 `Xlaunch`（安装后可在 Windows 开始菜单搜索找到）。  
-   - 找到 X11 配置文件 `X0.hosts`，路径为：`C:\Program Files (x86)\Xming\X0.hosts`。  
-   - 若提示“权限不足”：先将 `X0.hosts` 复制到桌面，用记事本打开，添加 IP 地址，保存后替换回原路径。
-4. **配置验证**  
-   完成上述操作后，在 Xshell 执行后续启动命令时，将自动唤起 X11 图形交互窗口，无需额外操作。
+- **多种交互标注工具**：Point（点标注）、Bounding Box（框标注）、Scribble（涂鸦标注）、Lasso（套索标注）
+- **预标注 Mask 微调**：支持加载已有的预标注 Mask，在此基础上进行增删微调
+- **实时可视化**：标注过程实时显示在图像上，支持多切片浏览
+- **撤销/重置**：支持撤销上一步操作或清除所有标注重新开始
+- **多格式支持**：支持 `.nii`、`.nii.gz`、`.mha`、`.mhd`、`.dcm` 等医学图像格式
 
+## 环境要求
 
-## 三、项目启动
-1. **进入项目目录**  
-   打开 Xshell 连接调试机后，切换到项目根目录
-2. **启动 UI 界面**  
-   执行命令启动交互界面，首次运行需等待依赖加载（约 5-15 秒，具体视环境而定）：
-   ```bash
-   python ui_test.py
-   ```
-   - **显示异常处理**：界面启动后若出现布局错位，可通过「调试机窗口全屏/小窗口切换」调整，直至显示正常。  
-   - 启动成功示例：  
-     ![UI 界面启动成功](imgs/image.png)
+- Python >= 3.10
+- CUDA 支持的 GPU（推荐）
+- 操作系统：Linux / Windows
 
+## 安装
 
-## 四、UI 界面使用说明
-### 4.1 模型与数据加载（前置必做步骤）
-标注前需完成 **模型加载** 和 **医学图像导入**，顺序无强制要求，但需确保两者均加载完成：
-1. **加载模型**  
-   - 在 UI 界面找到“模型路径”选择区域（参考界面内文字提示），选中目标模型的存放路径。  
-   - 点击“加载”按钮（按钮名称以实际界面为准），等待模型初始化完成（下面那行小字会提示“模型加载成功”）。  
-   - 模型路径
-     ![模型加载界面](imgs/image-1.png)
-2. **导入医学图像**  
-   - 点击界面右上角 `File` 菜单，选择 `Open Image` 选项。  
-   - 在文件选择窗口中，选中并导入 **.nii.gz 格式** 的医学图像（仅支持该格式，其他格式无法识别）。  
-     ![导入图像操作](imgs/image-2.png)
+### 1. 安装依赖
 
+```bash
+pip install nnunetv2>=2.6 torch>=2.6 acvl-utils>=0.2.3 batchgenerators>=0.25.1
+pip install SimpleITK Pillow matplotlib
+```
 
-### 4.2 标注操作（两种核心模式）
-#### 模式1：无预标注 Mask（原始标注）
-适用于无预设掩码的图像标注，操作流程简洁，步骤如下：
-1. **选择标注工具**  
-   界面提供 4 种工具，其中 `Bounding Box` 存在已知功能问题，推荐优先使用其余三种：
-   - **Point（点标注）**：单击鼠标添加标注点，可在 `Operation` 选项中切换“正点”“负点”。  
-   - **Bounding Box（框标注，暂不推荐）**：按住鼠标左键拖动，释放后生成矩形标注框。  
-   - **Scrible（涂鸦标注）**：按住鼠标左键连续拖动，形成任意形状的闭合区域（首尾靠近时自动闭合）。  
-   - **Lasso（套索标注）**：单击鼠标左键添加至少 3 个顶点，点击鼠标右键后，系统自动连接顶点形成闭合区域。
-2. **执行分割与标注编辑**  
-   - 标注完成后，点击 `Run Segmentation` 按钮，系统基于标注内容进行分割计算。  
-   - 标注修改：点击 `Undo Last Edit` 撤销上一步操作；点击 `Clear All Edits` 清除当前所有标注，重新开始。  
-     ![分割与编辑按钮](imgs/image-3.png)
+或直接安装本项目：
 
-#### 模式2：基于预标注 Mask（微调标注）
-适用于已有预标注掩码的场景，核心是在原始 Mask 基础上进行“删除”“新增”微调，步骤如下：
-1. **加载预标注 Mask（关键前提）**  
-   - 需先完成「4.1 模型与数据加载」中的“医学图像导入”（即先加载原始 .nii 图像）。  
-   - 点击 UI 界面左上角 `Load Initial Mask` 按钮（按钮位置及名称以实际界面为准），在文件窗口中选中预标注 Mask 文件并加载。  
-     ![加载预标注 Mask](imgs/image-4.png)
-2. **标注颜色含义（快速识别状态）**  
-   - 加载成功后，界面显示的 **紫色区域** 为原始预标注 Mask（即初始标注内容）。  
-     ![原始预标注 Mask（紫色）](imgs/image-5.png)
-3. ** Mask 微调操作**  
-   - **删除原始标注**：使用「模式1」中的 `Point` 工具，选择 `Operation` 中的“负点”，在需删除的紫色区域单击添加蓝色负点，该区域会从新 Mask 中消除（蓝色仅为操作标记，最终不保留）。  
-     ![添加负点删除标注](imgs/image-6.png)
-   - **新增标注内容**：使用「模式1」中的任意推荐工具（如 Scrible、Lasso），在需新增标注的区域操作，新增部分会显示为 **红色**（红色为新增标记，最终会融入 Mask）。  
-     ![新增标注（红色）](imgs/image-7.png)
-4. **保存微调结果（必做步骤）**  
-   - 微调完成后，需点击界面中的 `Update Mask` 按钮（按钮名称以实际界面为准），更新当前 Mask 内容。  
-   - 若未点击 `Update Mask` 直接保存，微调内容不会被记录；点击更新后，再执行“保存”操作（参考界面内保存按钮），即可保留最终微调后的 Mask。
+```bash
+pip install -e .
+```
+
+### 2. 下载模型
+
+从 [Hugging Face](https://huggingface.co/nnInteractive/nnInteractive/tree/main) 下载预训练模型 `nnInteractive_v1.0`，或在 UI 界面中通过 `File -> Download Model` 直接下载。
+
+## 使用方法
+
+### 启动 GUI 界面
+
+```bash
+# 启动完整功能版（推荐，支持所有标注工具）
+python ui_all_tools.py
+
+# 启动精简版（仅支持点标注）
+python ui_test.py
+```
+
+### 基本操作流程
+
+#### 模式一：无预标注 Mask（从零标注）
+
+1. **加载模型**：点击 `File -> Set Model Path` 或 `Browse` 按钮，选择模型目录
+2. **导入图像**：点击 `File -> Open Image`，选择 `.nii.gz` 格式的医学图像
+3. **选择标注工具**：在右侧面板选择 Point / Bounding Box / Scribble / Lasso
+4. **执行标注**：在图像上进行标注操作
+5. **运行分割**：点击 `Run Segmentation` 获取分割结果
+6. **保存结果**：点击 `Save Result` 保存为 `.nii.gz` 格式
+
+#### 模式二：基于预标注 Mask（微调标注）
+
+1. 完成上述步骤 1-2（加载模型和图像）
+2. **加载预标注 Mask**：点击 `File -> Load Initial Mask`，选择已有的 Mask 文件
+3. **微调操作**：
+   - **删除区域**：选择 `Remove` 模式，在需删除的区域添加负点
+   - **新增区域**：选择 `Add` 模式，使用任意标注工具在新区域标注
+4. **更新 Mask**：点击 `Update Mask` 查看更新后的结果
+5. **保存结果**：点击 `Save Result` 保存
+
+### 命令行推理
+
+```python
+from test_wechat import tumornnInteractivewithMutilBoxPoint_Inference
+
+# 使用点标注推理
+inferencer = tumornnInteractivewithMutilBoxPoint_Inference(propagate_with_type='point')
+success, mask = inferencer.network_prediction(
+    "your_image.nii.gz",
+    unique_labs_list=[[141, 354, 383, 144, 360, 383, 4]]  # x1,y1,z1,x2,y2,z2,label
+)
+```
+
+## 项目结构
+
+```
+nnInteractive/
+├── README.md                          # 项目说明文档
+├── LICENSE                            # Apache 2.0 许可证
+├── pyproject.toml                     # 项目配置与依赖
+├── setup.py                           # 安装脚本
+├── ui_all_tools.py                    # 完整版 GUI（支持所有标注工具）
+├── ui_test.py                         # 精简版 GUI（仅支持点标注）
+├── ui_work.py                         # 工作版 GUI（支持点标注 + 多视图）
+├── test_wechat.py                     # 命令行推理示例
+├── imgs/                              # 文档截图
+└── nnInteractive/                     # 核心推理库
+    ├── inference/                     # 推理会话管理
+    │   ├── inference_session.py       # 推理会话核心类
+    │   └── cvpr2025_challenge_baseline/ # CVPR2025 挑战赛基线
+    ├── interaction/                   # 交互处理
+    ├── trainer/                       # 训练模块
+    ├── supervoxel/                    # 超体素分割模块
+    └── utils/                         # 工具函数
+```
+
+## 标注工具说明
+
+| 工具 | 说明 | 推荐度 |
+|------|------|--------|
+| **Point** | 单击添加正/负点标注 | ⭐⭐⭐ 推荐 |
+| **Scribble** | 按住左键连续拖动绘制涂鸦区域 | ⭐⭐⭐ 推荐 |
+| **Lasso** | 左键添加顶点（≥3个），右键闭合区域 | ⭐⭐⭐ 推荐 |
+| **Bounding Box** | 拖动绘制矩形框（当前存在已知问题） | ⭐ 暂不推荐 |
+
+## 致谢
+
+- [nnInteractive](https://github.com/MIC-DKFZ/nnInteractive) - 核心推理引擎
+- [nnU-Net](https://github.com/MIC-DKFZ/nnUNet) - 基础分割框架
+- [SAM 2](https://github.com/facebookresearch/sam2) - 超体素模块引用
+
+## 许可证
+
+本项目基于 [Apache License 2.0](LICENSE) 开源。
